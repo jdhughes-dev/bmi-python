@@ -2,6 +2,11 @@
 
 Python bindings for the CSDMS [Basic Model Interface](https://bmi.readthedocs.io).
 
+This branch is BMI 3.0-alpha1.
+It tracks the `bmi-3-development` branch of
+[csdms/bmi](https://github.com/csdms/bmi)
+and will change as the specification does.
+
 ![[Python][pypi-link]][python-badge]
 ![[DOI][doi-link]][doi-badge]
 ![[Build Status][build-link]][build-badge]
