@@ -92,3 +92,17 @@ def test_render_function_is_valid(annotations):
 
     assert "foo" in globs
     assert globs["foo"](*range(len(params))) == "FOOBAR!"
+
+
+def test_render_function_with_defaults():
+    text = render_function_signature(
+        "foo",
+        ("bar", "baz"),
+        {"bar": "int", "return": "int"},
+        defaults={"bar": "1", "baz": "()"},
+    )
+    assert text == "def foo(bar: int = 1, baz=()) -> int:"
+
+    globs = {}
+    exec(f"{text}\n    return bar", globs)
+    assert globs["foo"]() == 1

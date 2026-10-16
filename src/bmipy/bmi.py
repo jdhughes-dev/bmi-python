@@ -12,16 +12,24 @@ from typing import TYPE_CHECKING
 from typing import Any
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     import numpy as np
     from numpy.typing import NDArray
+
+
+class BmiExtension(ABC):
+    """Base class for the objects returned by :func:`Bmi.get_extension`."""
 
 
 class Bmi(ABC):
     """Base class for implementations of a Python-based BMI."""
 
     @abstractmethod
-    def initialize(self, config_file: str) -> None:
-        """Perform startup tasks for the model.
+    def initialize(
+        self, config_file: str, requested_extensions: Sequence[str] = ()
+    ) -> tuple[str, ...]:
+        """Perform startup tasks for the model and negotiate extensions.
 
         Perform all tasks that take place before entering the model's time
         loop, including opening files and initializing the model state. Model
@@ -30,8 +38,15 @@ class Bmi(ABC):
 
         Parameters
         ----------
-        config_file : str, optional
+        config_file : str
             The path to the model configuration file.
+        requested_extensions : sequence of str, optional
+            Names of the extensions the caller would like to use.
+
+        Returns
+        -------
+        tuple of str
+            The requested extensions that the model supports.
 
         Notes
         -----
@@ -40,6 +55,23 @@ class Bmi(ABC):
         how configuration files are formatted, although YAML is
         recommended. A template of a model's configuration file
         with placeholder values is used by the BMI.
+        """
+        ...
+
+    @abstractmethod
+    def get_extension(self, extension_name: str) -> BmiExtension:
+        """Get the object that implements the named extension.
+
+        Parameters
+        ----------
+        extension_name : str
+            The name of an extension the model reported as supported by
+            :func:`initialize`.
+
+        Returns
+        -------
+        BmiExtension
+            The extension object.
         """
         ...
 

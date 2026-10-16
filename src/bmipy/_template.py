@@ -13,6 +13,7 @@ GROUPS = (
     ("initialize", "initialize"),
     ("update", "(update|update_until)"),
     ("finalize", "finalize"),
+    ("extension", "get_extension"),
     ("info", r"(get_component_name|get_varset_\w+)"),
     ("var", r"get_var_\w+"),
     ("time", r"get_\w*time\w*"),
@@ -40,12 +41,14 @@ class Template:
         prefix = f"""\
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
 
 from bmipy.bmi import Bmi
+from bmipy.bmi import BmiExtension
 
 
 class {self._name}(Bmi):
@@ -64,12 +67,19 @@ class {self._name}(Bmi):
             '"""' + dedent_docstring(self._funcs[name].__doc__) + '"""', "    "
         )
 
+        defaults = {
+            param.name: repr(param.default)
+            for param in signature.parameters.values()
+            if param.default is not inspect.Parameter.empty
+        }
+
         parts = [
             render_function_signature(
                 name,
                 tuple(signature.parameters),
                 annotations,
                 width=84,
+                defaults=defaults,
             )
         ]
         parts.append(docstring) if with_docstring else None
@@ -129,6 +139,7 @@ def render_function_signature(
     annotations: dict[str, str] | None = None,
     tabsize: int = 4,
     width: int = 88,
+    defaults: dict[str, str] | None = None,
 ) -> str:
     """Render a function signature, wrapping if the generated signature is too long.
 
@@ -144,6 +155,8 @@ def render_function_signature(
         The number of spacses represented by a tab.
     width : int, optional
         The maximum width of a line.
+    defaults : dict, optional
+        Default values, as source text, for each parameter that has one.
 
     Returns
     -------
@@ -152,6 +165,7 @@ def render_function_signature(
     """
     params = () if params is None else params
     annotations = {} if annotations is None else annotations
+    defaults = {} if defaults is None else defaults
 
     prefix = f"def {name}("
     if "return" in annotations:
@@ -160,9 +174,16 @@ def render_function_signature(
         suffix = "):"
     body = []
     for param in params:
+        text = param
         if param in annotations:
-            param += f": {annotations[param]}"
-        body.append(param)
+            text += f": {annotations[param]}"
+        if param in defaults:
+            text += (
+                f" = {defaults[param]}"
+                if param in annotations
+                else f"={defaults[param]}"
+            )
+        body.append(text)
 
     signature = prefix + ", ".join(body) + suffix
     if len(signature) <= width:
