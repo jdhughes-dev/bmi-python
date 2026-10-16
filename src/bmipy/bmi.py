@@ -26,7 +26,7 @@ class BmiPointers(BmiExtension):
     """Extension object for ``"bmi:pointers"``."""
 
     @abstractmethod
-    def get_value_ptr(self, name: str) -> NDArray[Any]:
+    def get_value_ptr(self, index: int) -> NDArray[Any]:
         """Get a reference to values of the given variable.
 
         This is a getter for the model, used to access the model's
@@ -39,8 +39,8 @@ class BmiPointers(BmiExtension):
 
         Parameters
         ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
 
         Returns
         -------
@@ -194,8 +194,11 @@ class Bmi(ABC):
         ...
 
     @abstractmethod
-    def get_var_grid(self, name: str) -> int:
-        """Get grid identifier for the given variable.
+    def get_var_index(self, name: str) -> int:
+        """Get the index of the given variable.
+
+        The index identifies the variable in every other variable function.
+        Indices need not be ordered or contiguous.
 
         Parameters
         ----------
@@ -205,18 +208,34 @@ class Bmi(ABC):
         Returns
         -------
         int
+            The variable index.
+        """
+        ...
+
+    @abstractmethod
+    def get_var_grid(self, index: int) -> int:
+        """Get grid identifier for the given variable.
+
+        Parameters
+        ----------
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
+
+        Returns
+        -------
+        int
           The grid identifier.
         """
         ...
 
     @abstractmethod
-    def get_var_type(self, name: str) -> str:
+    def get_var_type(self, index: int) -> str:
         """Get data type of the given variable.
 
         Parameters
         ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
 
         Returns
         -------
@@ -226,7 +245,7 @@ class Bmi(ABC):
         ...
 
     @abstractmethod
-    def get_var_units(self, name: str) -> str:
+    def get_var_units(self, index: int) -> str:
         """Get units of the given variable.
 
         Standard unit names, in lower case, should be used, such as
@@ -239,8 +258,8 @@ class Bmi(ABC):
 
         Parameters
         ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
 
         Returns
         -------
@@ -256,13 +275,13 @@ class Bmi(ABC):
         ...
 
     @abstractmethod
-    def get_var_itemsize(self, name: str) -> int:
+    def get_var_itemsize(self, index: int) -> int:
         """Get memory use for each array element in bytes.
 
         Parameters
         ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
 
         Returns
         -------
@@ -272,13 +291,13 @@ class Bmi(ABC):
         ...
 
     @abstractmethod
-    def get_var_nbytes(self, name: str) -> int:
+    def get_var_nbytes(self, index: int) -> int:
         """Get size, in bytes, of the given variable.
 
         Parameters
         ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
 
         Returns
         -------
@@ -288,7 +307,7 @@ class Bmi(ABC):
         ...
 
     @abstractmethod
-    def get_var_location(self, name: str) -> str:
+    def get_var_location(self, index: int) -> str:
         """Get the grid element type that the a given variable is defined on.
 
         The grid topology can be composed of *nodes*, *edges*, and *faces*.
@@ -307,8 +326,8 @@ class Bmi(ABC):
 
         Parameters
         ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
 
         Returns
         -------
@@ -388,7 +407,7 @@ class Bmi(ABC):
         ...
 
     @abstractmethod
-    def get_value(self, name: str, dest: NDArray[Any]) -> NDArray[Any]:
+    def get_value(self, index: int, dest: NDArray[Any]) -> NDArray[Any]:
         """Get a copy of values of the given variable.
 
         This is a getter for the model, used to access the model's
@@ -397,8 +416,8 @@ class Bmi(ABC):
 
         Parameters
         ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
         dest : ndarray
             A numpy array into which to place the values.
 
@@ -411,14 +430,14 @@ class Bmi(ABC):
 
     @abstractmethod
     def get_value_at_indices(
-        self, name: str, dest: NDArray[Any], inds: NDArray[np.int_]
+        self, index: int, dest: NDArray[Any], inds: NDArray[np.int_]
     ) -> NDArray[Any]:
         """Get values at particular indices.
 
         Parameters
         ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
         dest : ndarray
             A numpy array into which to place the values.
         inds : array_like
@@ -432,7 +451,7 @@ class Bmi(ABC):
         ...
 
     @abstractmethod
-    def set_value(self, name: str, src: NDArray[Any]) -> None:
+    def set_value(self, index: int, src: NDArray[Any]) -> None:
         """Specify a new value for a model variable.
 
         This is the setter for the model, used to change the model's
@@ -442,8 +461,8 @@ class Bmi(ABC):
 
         Parameters
         ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
         src : array_like
             The new value for the specified variable.
         """
@@ -451,14 +470,14 @@ class Bmi(ABC):
 
     @abstractmethod
     def set_value_at_indices(
-        self, name: str, inds: NDArray[np.int_], src: NDArray[Any]
+        self, index: int, inds: NDArray[np.int_], src: NDArray[Any]
     ) -> None:
         """Specify a new value for a model variable at particular indices.
 
         Parameters
         ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
+        index : int
+            The index of the variable, from :func:`Bmi.get_var_index`.
         inds : array_like
             The indices into the variable array.
         src : array_like
