@@ -88,38 +88,39 @@ class Bmi(ABC):
         ...
 
     @abstractmethod
-    def get_input_item_count(self) -> int:
-        """Count of a model's input variables.
+    def get_varset_member_count(self, set_name: str) -> int:
+        """Count the variables in a variable set.
+
+        Parameters
+        ----------
+        set_name : str
+            The name of the variable set, for example ``"input"`` or
+            ``"output"``.
 
         Returns
         -------
         int
-          The number of input variables.
+          The number of variables in the set.
         """
         ...
 
     @abstractmethod
-    def get_output_item_count(self) -> int:
-        """Count of a model's output variables.
+    def get_varset_members(self, set_name: str) -> tuple[str, ...]:
+        """Get the variables in a variable set.
 
-        Returns
-        -------
-        int
-          The number of output variables.
-        """
-        ...
+        Variable names must be CSDMS Standard Names, also known as *long
+        variable names*.
 
-    @abstractmethod
-    def get_input_var_names(self) -> tuple[str, ...]:
-        """Get the model's input variables.
-
-        Input variable names must be CSDMS Standard Names, also known
-        as *long variable names*.
+        Parameters
+        ----------
+        set_name : str
+            The name of the variable set, for example ``"input"`` or
+            ``"output"``.
 
         Returns
         -------
         tuple of str
-            The input variables for the model.
+            The variables in the set.
 
         Notes
         -----
@@ -129,20 +130,6 @@ class Bmi(ABC):
         framework to automatically connect components.
 
         Standard Names do not have to be used within the model.
-        """
-        ...
-
-    @abstractmethod
-    def get_output_var_names(self) -> tuple[str, ...]:
-        """Get the model's output variables.
-
-        Output variable names must be CSDMS Standard Names, also known
-        as *long variable names*.
-
-        Returns
-        -------
-        tuple of str
-            The output variables for the model.
         """
         ...
 

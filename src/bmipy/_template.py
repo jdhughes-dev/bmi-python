@@ -13,7 +13,7 @@ GROUPS = (
     ("initialize", "initialize"),
     ("update", "(update|update_until)"),
     ("finalize", "finalize"),
-    ("info", r"(get_component_name|\w+_var_names|\w+_item_count)"),
+    ("info", r"(get_component_name|get_varset_\w+)"),
     ("var", r"get_var_\w+"),
     ("time", r"get_\w*time\w*"),
     ("value", r"(get|set)_value\w*"),
