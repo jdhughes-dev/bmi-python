@@ -5,5 +5,6 @@ from __future__ import annotations
 from bmipy._version import __version__
 from bmipy.bmi import Bmi
 from bmipy.bmi import BmiExtension
+from bmipy.bmi import BmiPointers
 
-__all__ = ["__version__", "Bmi", "BmiExtension"]
+__all__ = ["__version__", "Bmi", "BmiExtension", "BmiPointers"]

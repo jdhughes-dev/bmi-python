@@ -22,6 +22,34 @@ class BmiExtension(ABC):
     """Base class for the objects returned by :func:`Bmi.get_extension`."""
 
 
+class BmiPointers(BmiExtension):
+    """Extension object for ``"bmi:pointers"``."""
+
+    @abstractmethod
+    def get_value_ptr(self, name: str) -> NDArray[Any]:
+        """Get a reference to values of the given variable.
+
+        This is a getter for the model, used to access the model's
+        current state. It returns a reference to a model variable,
+        with the return type, size and rank dependent on the variable.
+        A variable in the ``"bmi:pointers:stable"`` set keeps its
+        reference from :func:`Bmi.initialize` to :func:`Bmi.finalize`;
+        one in ``"bmi:pointers:transient"`` must be fetched again after
+        any call that changes the model's state.
+
+        Parameters
+        ----------
+        name : str
+            An input or output variable name, a CSDMS Standard Name.
+
+        Returns
+        -------
+        array_like
+            A reference to a model variable.
+        """
+        ...
+
+
 class Bmi(ABC):
     """Base class for implementations of a Python-based BMI."""
 
@@ -378,26 +406,6 @@ class Bmi(ABC):
         -------
         ndarray
             The same numpy array that was passed as an input buffer.
-        """
-        ...
-
-    @abstractmethod
-    def get_value_ptr(self, name: str) -> NDArray[Any]:
-        """Get a reference to values of the given variable.
-
-        This is a getter for the model, used to access the model's
-        current state. It returns a reference to a model variable,
-        with the return type, size and rank dependent on the variable.
-
-        Parameters
-        ----------
-        name : str
-            An input or output variable name, a CSDMS Standard Name.
-
-        Returns
-        -------
-        array_like
-            A reference to a model variable.
         """
         ...
 
